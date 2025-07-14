@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "name": "Agent Server",
+      "script": "./app/index.js"
+    },
+    {
+      "name": "Local Tunnel",
+      "script": "./localTunnel/service.sh"
+    }
+  ]
+}
