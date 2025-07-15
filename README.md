@@ -11,7 +11,7 @@ APP CODE: [CODE](./effisend-mxnb/)
 
 WEB DAPP: [LINK](https://effisend-mxnb.expo.app/)
 
-VIDEODEMO: [LINK](pending...)
+VIDEODEMO: [LINK](https://youtu.be/fJJfET2dlj0)
 
 <hr>
 
