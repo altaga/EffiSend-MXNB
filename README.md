@@ -318,24 +318,24 @@ As seen in the provided code snippets, Arbitrum plays a direct role in EffiSend'
 - Batch Balances: To enhance the user experience, the batch balances feature was implemented to fetch all token balances in a single contract call. This allows the frontend to display the user's balances more efficiently.
   - Contract Address on Testnet: [0xcf4902BC621E97B8d574f1E91c342f0c44C8baE5](https://sepolia.arbiscan.io/address/0xcf4902BC621E97B8d574f1E91c342f0c44C8baE5)
   - Contract Code: [Batch Balances](./Contracts/batchbalances.sol)
-
-  ```javascript
-  // Get the allocated reward for a specific user
-  function getAllocatedReward(
-      address _recipient
-  ) external view returns (uint256) {
-      return allocatedRewards[_recipient];
-  }
-  // Get the claim count for a specific user
-  function getClaimCount(address _recipient) external view returns (uint256) {
-      return claimCounts[_recipient];
-  }
-  ```
+  - Main Function Code:
+    ```javascript
+    // Get the allocated reward for a specific user
+    function getAllocatedReward(
+        address _recipient
+    ) external view returns (uint256) {
+        return allocatedRewards[_recipient];
+    }
+    // Get the claim count for a specific user
+    function getClaimCount(address _recipient) external view returns (uint256) {
+        return claimCounts[_recipient];
+    }
+    ```
 
 - Rewards Smart Contract Deployment: The MXNBRewardsDistributor smart contract is deployed on Arbitrum. This allows EffiSend to efficiently allocate and distribute MXNB rewards to users with low gas costs and quick confirmations, fostering a robust reward ecosystem.
   - Contract Address on Testnet: [0x04A4e03a1F879DE1F03D3bBBccd9CB9500d6A7e8](https://sepolia.arbiscan.io/address/0x04A4e03a1F879DE1F03D3bBBccd9CB9500d6A7e8)
   - Contract Code: [MXNBRewardsDistributor](./Contracts/rewards.sol)
-
+  - Main Function Code:
   ```javascript
   function batchBalanceOf(address _owner, address[] memory _tokenAddresses)
       public
