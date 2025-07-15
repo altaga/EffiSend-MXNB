@@ -107,48 +107,48 @@ As a platform based on identity, users can create or recover their accounts simp
 
 - Create User Main Code.
 
-```javascript
-// Create User Wallet
-const wallet = Wallet.createRandom();
-const address = wallet.address;
-// Create a Mock Clabe "third party" for the user
-const myClabe = clabe.calculate(002, 180, generateRandomNumber()); 
-// Create a Clabe for the user to receive MXNB with Juno (Multiple User CLABEs feature)
-const tempRClabe = await createClabe();
-// Add Clabe and Blockchain account to JUNO
-await addBlockchain({
-    tag: user,
-    network: "ARBITRUM",
-    address
-})
-await addBankAccount({
-    tag: user,
-    recipient_legal_name: random_name(),
-    clabe: myClabe,
-    ownership: "THIRD_PARTY",
-})
-const rclabe = tempRClabe.payload.clabe; 
-// Create a dataframe of the user, all this data is part of the "user" entity on the backend.
-let dataframe = {
-    privateKey: wallet.privateKey,
-    address,
-    user,
-    clabe: myClabe,
-    rclabe,
-}
-await Accounts.doc(user).set(dataframe);
-// Setup 20 MXNB to the user as a reward to create a new wallet. This is contract based 
-await contract.allocateReward(address);
-res.send({
-    error: null,
-    result: {
-        address,
-        user,
-        clabe: myClabe,
-        rclabe
-    }
-});
-```
+  ```javascript
+  // Create User Wallet
+  const wallet = Wallet.createRandom();
+  const address = wallet.address;
+  // Create a Mock Clabe "third party" for the user
+  const myClabe = clabe.calculate(002, 180, generateRandomNumber()); 
+  // Create a Clabe for the user to receive MXNB with Juno (Multiple User CLABEs feature)
+  const tempRClabe = await createClabe();
+  // Add Clabe and Blockchain account to JUNO
+  await addBlockchain({
+      tag: user,
+      network: "ARBITRUM",
+      address
+  })
+  await addBankAccount({
+      tag: user,
+      recipient_legal_name: random_name(),
+      clabe: myClabe,
+      ownership: "THIRD_PARTY",
+  })
+  const rclabe = tempRClabe.payload.clabe; 
+  // Create a dataframe of the user, all this data is part of the "user" entity on the backend.
+  let dataframe = {
+      privateKey: wallet.privateKey,
+      address,
+      user,
+      clabe: myClabe,
+      rclabe,
+  }
+  await Accounts.doc(user).set(dataframe);
+  // Setup 20 MXNB to the user as a reward to create a new wallet. This is contract based 
+  await contract.allocateReward(address);
+  res.send({
+      error: null,
+      result: {
+          address,
+          user,
+          clabe: myClabe,
+          rclabe
+      }
+  });
+  ```
 
 Although it may seem a bit complex, with this single code we can configure everything necessary for the user to fully utilize the platform.
 
@@ -168,34 +168,35 @@ We can transfer of funds from the EffiSend system to external bank accounts via 
 
 <img src="./Images/pay1.jpg" width="32%"> <img src="./Images/pay2.jpg" width="32%"> <img src="./Images/pay3.jpg" width="32%"> 
 
-- Create User Main Code.
+- SPEI Transfer Main Code.
 
-```javascript
-// Fetch if the user Exist on the platform
-let query = await Accounts.where("user", "==", req.body.user).get();
-if (query.empty) {
-    throw "BAD USER"
-}
-// Get all the third party CLABES registered on Juno
-const { payload } = await getClabes();
-const clientObject = payload.find((x) => req.body.clabe === x.clabe);
-if (!clientObject) {
-    throw "BAD CLABE"
-}
-// Extract the ID of the Clabe to use the Juno API and Transfer XXX Amount of MXNB to CLABE via SPEI (this is a mock tranfer)
-const { id } = clientObject;
-await speiToBank({
-    amount: parseInt(req.body.amount),
-    destination_bank_account_id: id,
-    asset: "mxn",
-})
-// Send the same amount of the Client MXNB on Abritrum to the platform wallet. (this is real blockchain transfer on testnet)
-const { privateKey } = query.docs[0].data();
-const wallet = new Wallet(privateKey, provider);
-const contract = new Contract("0x82B9e52b26A2954E113F94Ff26647754d5a4247D", ERC20abi, wallet)
-const transaction = await contract.transfer(junoAddress, parseUnits(req.body.amount, 6))
-await transaction.wait();
-```
+  ```javascript
+  // Fetch if the user Exist on the platform
+  let query = await Accounts.where("user", "==", req.body.user).get();
+  if (query.empty) {
+      throw "BAD USER"
+  }
+  // Get all the third party CLABES registered on Juno
+  const { payload } = await getClabes();
+  const clientObject = payload.find((x) => req.body.clabe === x.clabe);
+  if (!clientObject) {
+      throw "BAD CLABE"
+  }
+  // Extract the ID of the Clabe to use the Juno API and Transfer XXX Amount of MXNB to CLABE via SPEI (this is a mock tranfer)
+  const { id } = clientObject;
+  await speiToBank({
+      amount: parseInt(req.body.amount),
+      destination_bank_account_id: id,
+      asset: "mxn",
+  })
+  // Send the same amount of the Client MXNB on Abritrum to the platform wallet. (this is real blockchain transfer on testnet)
+  const { privateKey } = query.docs[0].data();
+  const wallet = new Wallet(privateKey, provider);
+  const contract = new Contract("0x82B9e52b26A2954E113F94Ff26647754d5a4247D", ERC20abi, wallet)
+  const transaction = await contract.transfer(junoAddress, parseUnits(req.body.amount, 6))
+  await transaction.wait();
+  ```
+
 This process is relatively straightforward. Thanks to Juno, we can coordinate the transfer of MXNB from the user's account to their bank account, while simultaneously sending the same amount of MXNB from the user's wallet to Juno's account on the blockchain. This ensures that the "books" are balanced, with the user receiving the transferred funds and Juno's account being updated accordingly.
 
 All technical implementations for this module are included here.
@@ -212,43 +213,44 @@ For the use case of payments, MXNB offers a convenient way to make blockchain-ba
 
 <img src="./Images/pay4.jpg" width="32%"> <img src="./Images/pay5.jpg" width="32%"> <img src="./Images/pay6.jpg" width="32%"> 
 
-- Create User Main Code.
+- Crypto Payment Main Code.
 
-```javascript
-// Fetch user based on the identifier.
-let query = await Accounts.where("user", "==", req.body.user).get();
-if (query.empty) {
-  throw "BAD USER";
-}
-// Get the user private key and make the payment
-const { privateKey } = query.docs[0].data();
-const wallet = new Wallet(privateKey, provider);
-let transaction;
-if (req.body.token === 0) {
-  // Native token transfer
-  transaction = {
-    to: req.body.destination,
-    value: parseEther(req.body.amount),
-  };
-} else {
-  // ERC20 token transfer
-  const interface = new Interface(abiERC20);
-  const data = interface.encodeFunctionData("transfer", [
-    req.body.destination,
-    parseUnits(req.body.amount, tokens[req.body.token].decimals),
-  ]);
-  transaction = {
-    to: tokens[req.body.token].address,
-    data,
-  };
-}
-// Send the transaction.
-const result = await wallet.sendTransaction(transaction);
-res.send({
-  error: null,
-  result: result.hash,
-});
-```
+  ```javascript
+  // Fetch user based on the identifier.
+  let query = await Accounts.where("user", "==", req.body.user).get();
+  if (query.empty) {
+    throw "BAD USER";
+  }
+  // Get the user private key and make the payment
+  const { privateKey } = query.docs[0].data();
+  const wallet = new Wallet(privateKey, provider);
+  let transaction;
+  if (req.body.token === 0) {
+    // Native token transfer
+    transaction = {
+      to: req.body.destination,
+      value: parseEther(req.body.amount),
+    };
+  } else {
+    // ERC20 token transfer
+    const interface = new Interface(abiERC20);
+    const data = interface.encodeFunctionData("transfer", [
+      req.body.destination,
+      parseUnits(req.body.amount, tokens[req.body.token].decimals),
+    ]);
+    transaction = {
+      to: tokens[req.body.token].address,
+      data,
+    };
+  }
+  // Send the transaction.
+  const result = await wallet.sendTransaction(transaction);
+  res.send({
+    error: null,
+    result: result.hash,
+  });
+  ```
+
 Making a payment with an ERC20 token is straightforward. This interface enables us to facilitate all the payments requested by the user. In the case of EffiSend, these payments are executed after a successful facial recognition or by scanning a QR code (like Alipay). The details of these processes will be outlined later.
 
 All technical implementations for this module are included here.
@@ -265,42 +267,42 @@ As a platform built on identity, we follow the rewards model of Worldcoin, which
 
 - The first reward for creating an account, this code has already been explained previously [HERE](#create-or-recover-account), however, we'll review the process and how it's coordinated with our smart contract.
 
-```javascript
-// List of testnet public rpcs
-const rpcs = [
-    "https://arbitrum-sepolia-rpc.publicnode.com",
-    "https://sepolia-rollup.arbitrum.io/rpc",
-    "https://arbitrum-sepolia.public.blastapi.io",
-    "https://arbitrum-sepolia.drpc.org/",
-]
-// Dynamic provider to avoid problems on rpcs
-const provider = new DynamicProvider(rpcs, {
-    strategy: new FallbackStrategy(),
-});
-// Owner of the contract
-const wallet = new Wallet("0xPrivateKey", provider);
-// Rewards Contract
-const contract = new Contract("0x04A4e03a1F879DE1F03D3bBBccd9CB9500d6A7e8", abi, wallet)
-...
-// Allocate 20 MXNB (Default by contract)
-await contract.allocateReward(address);
-```
+  ```javascript
+  // List of testnet public rpcs
+  const rpcs = [
+      "https://arbitrum-sepolia-rpc.publicnode.com",
+      "https://sepolia-rollup.arbitrum.io/rpc",
+      "https://arbitrum-sepolia.public.blastapi.io",
+      "https://arbitrum-sepolia.drpc.org/",
+  ]
+  // Dynamic provider to avoid problems on rpcs
+  const provider = new DynamicProvider(rpcs, {
+      strategy: new FallbackStrategy(),
+  });
+  // Owner of the contract
+  const wallet = new Wallet("0xPrivateKey", provider);
+  // Rewards Contract
+  const contract = new Contract("0x04A4e03a1F879DE1F03D3bBBccd9CB9500d6A7e8", abi, wallet)
+  ...
+  // Allocate 20 MXNB (Default by contract)
+  await contract.allocateReward(address);
+  ```
 
 - On the smart contract side, which already has the rewards in its balance, it can distribute and keep a count of the rewards distributed to each user, which in turn helps us generate a Trust Score algorithm, to improve recommendations in the future.
 
-```javascript
-// DEFAULT_REWARD = 20000000 MXNB tokens (20 MXN)
-function allocateReward(address _recipient) external onlyOwner {
-    require(_recipient != address(0), "Invalid recipient address");
+  ```javascript
+  // DEFAULT_REWARD = 20000000 MXNB tokens (20 MXN)
+  function allocateReward(address _recipient) external onlyOwner {
+      require(_recipient != address(0), "Invalid recipient address");
 
-    if (allocatedRewards[_recipient] == 0) {
-        rewardAddresses.push(_recipient);
-    }
+      if (allocatedRewards[_recipient] == 0) {
+          rewardAddresses.push(_recipient);
+      }
 
-    allocatedRewards[_recipient] = DEFAULT_REWARD;
-    emit RewardAllocated(_recipient, DEFAULT_REWARD);
-}
-```
+      allocatedRewards[_recipient] = DEFAULT_REWARD;
+      emit RewardAllocated(_recipient, DEFAULT_REWARD);
+  }
+  ```
 
 All technical implementations for this module are included here.
 
@@ -567,114 +569,114 @@ DeSmond utilizes several specialized tools to handle different user requests. Th
 
 - **`get_balance`**: Retrieves the user's **Ethereum (ETH) native token balance** on the Arbitrum Sepolia testnet.
 
-```javascript
-// Get Native Balance - Modified for API response
-const getBalance = tool(
-  async (_, { configurable: { address } }) => {
-    console.log("Get Balance Tool invoked.");
-    const balance = await provider.getBalance(address);
-    const balanceInEth = parseFloat(formatEther(balance)).toFixed(6);
-    console.log("Balance in ETH:", balanceInEth);
-    return JSON.stringify({
-      status: "success",
-      balance: `${balanceInEth} ETH`,
-    });
-  },
-  {
-    name: "get_balance",
-    description:
-      "This tool retrieves the user's current **Ethereum (ETH) native token balance** on the Arbitrum Sepolia testnet. Use this when the user specifically asks for their **ETH balance**, 'native token' balance, or general wallet funds on Arbitrum Sepolia.",
-    schema: z.object({}),
-  }
-);
-```
+  ```javascript
+  // Get Native Balance - Modified for API response
+  const getBalance = tool(
+    async (_, { configurable: { address } }) => {
+      console.log("Get Balance Tool invoked.");
+      const balance = await provider.getBalance(address);
+      const balanceInEth = parseFloat(formatEther(balance)).toFixed(6);
+      console.log("Balance in ETH:", balanceInEth);
+      return JSON.stringify({
+        status: "success",
+        balance: `${balanceInEth} ETH`,
+      });
+    },
+    {
+      name: "get_balance",
+      description:
+        "This tool retrieves the user's current **Ethereum (ETH) native token balance** on the Arbitrum Sepolia testnet. Use this when the user specifically asks for their **ETH balance**, 'native token' balance, or general wallet funds on Arbitrum Sepolia.",
+      schema: z.object({}),
+    }
+  );
+  ```
 
 - **`get_balance_mxnb`**: Retrieves the user's **MXNB ERC-20 token balance** on the Arbitrum Sepolia testnet.
 
-```javascript
-// Get MXNB Balance - Modified for API response
-const getBalanceMXNB = tool(
-  async (_, { configurable: { address } }) => {
-    console.log("Get Balance MXNB Tool invoked.");
-    const balance = await contract.balanceOf(address);
-    const balanceInMXNB = parseFloat(
-      formatUnits(balance, mxnb.decimals)
-    ).toFixed(6);
-    console.log("Balance in MXNB:", balanceInMXNB);
-    return JSON.stringify({
-      status: "success",
-      balance: `${balanceInMXNB} MXNB`,
-    });
-  },
-  {
-    name: "get_balance_mxnb",
-    description:
-      "MXNB ERC-20 token balance tool. This tool retrieves the user's current MXNB ERC-20 token balance on the Arbitrum Sepolia testnet. Activate this when the user explicitly asks for their **MXNB balance**, 'MXNB tokens', or other phrases clearly indicating a request for the MXNB token.",
-    schema: z.object({}),
-  }
-);
-```
+  ```javascript
+  // Get MXNB Balance - Modified for API response
+  const getBalanceMXNB = tool(
+    async (_, { configurable: { address } }) => {
+      console.log("Get Balance MXNB Tool invoked.");
+      const balance = await contract.balanceOf(address);
+      const balanceInMXNB = parseFloat(
+        formatUnits(balance, mxnb.decimals)
+      ).toFixed(6);
+      console.log("Balance in MXNB:", balanceInMXNB);
+      return JSON.stringify({
+        status: "success",
+        balance: `${balanceInMXNB} MXNB`,
+      });
+    },
+    {
+      name: "get_balance_mxnb",
+      description:
+        "MXNB ERC-20 token balance tool. This tool retrieves the user's current MXNB ERC-20 token balance on the Arbitrum Sepolia testnet. Activate this when the user explicitly asks for their **MXNB balance**, 'MXNB tokens', or other phrases clearly indicating a request for the MXNB token.",
+      schema: z.object({}),
+    }
+  );
+  ```
 
 - **`transfer_native`**: Facilitates native Ethereum (ETH) transfers on the Arbitrum Sepolia testnet.
 
-```javascript
-// Transfer Native - Modified to return transaction data to API
-const transferNative = tool(
-  async ({ amount, to }, { configurable: { user } }) => {
-    const transaction = await createTransaction(amount, to);
-    console.log(user);
-    const response = await fetchUser(user);
-    console.log(response);
-    const wallet = new Wallet(response.privateKey, provider);
-    const tx = await wallet.sendTransaction(transaction);
-    console.log(tx.hash);
-    return JSON.stringify({
-      status: "success",
-      message: "Transaction created and available on Arbitrum Sepolia.",
-      transaction: tx.hash,
-    });
-  },
-  {
-    name: "transfer_native",
-    description:
-      "This tool facilitates native Ethereum (ETH) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send ETH, initiates a transaction, or mentions terms like 'transfer,' 'ETH,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
-    schema: z.object({
-      amount: z.string(),
-      to: z.string(),
-    }),
-  }
-);
-```
+  ```javascript
+  // Transfer Native - Modified to return transaction data to API
+  const transferNative = tool(
+    async ({ amount, to }, { configurable: { user } }) => {
+      const transaction = await createTransaction(amount, to);
+      console.log(user);
+      const response = await fetchUser(user);
+      console.log(response);
+      const wallet = new Wallet(response.privateKey, provider);
+      const tx = await wallet.sendTransaction(transaction);
+      console.log(tx.hash);
+      return JSON.stringify({
+        status: "success",
+        message: "Transaction created and available on Arbitrum Sepolia.",
+        transaction: tx.hash,
+      });
+    },
+    {
+      name: "transfer_native",
+      description:
+        "This tool facilitates native Ethereum (ETH) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send ETH, initiates a transaction, or mentions terms like 'transfer,' 'ETH,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
+      schema: z.object({
+        amount: z.string(),
+        to: z.string(),
+      }),
+    }
+  );
+  ```
 
 - **`transfer_mxnb`**: Facilitates MXNB Coin (MXNB) transfers on the Arbitrum Sepolia testnet.
 
-```javascript
-// Transfer MXNB Arbitrum to USDC Linea - Only on Mainnet
-const transferMXNB = tool(
-  async ({ amount, to }, { configurable: { user } }) => {
-    const transaction = createTransactionMXNB(amount, to);
-    const response = await fetchUser(user);
-    console.log(response);
-    const wallet = new Wallet(response.privateKey, provider);
-    const tx = await wallet.sendTransaction(transaction);
-    console.log(tx.hash);
-    return JSON.stringify({
-      status: "success",
-      message: "Transaction created and available on Arbitrum Sepolia.",
-      transaction: tx.hash,
-    });
-  },
-  {
-    name: "transfer_mxnb",
-    description:
-      "This tool facilitates MXNB Coin (MXNB) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send MXNB, initiates a transaction, or mentions terms like 'transfer,' 'MXNB,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
-    schema: z.object({
-      amount: z.string(),
-      to: z.string(),
-    }),
-  }
-);
-```
+  ```javascript
+  // Transfer MXNB Arbitrum to USDC Linea - Only on Mainnet
+  const transferMXNB = tool(
+    async ({ amount, to }, { configurable: { user } }) => {
+      const transaction = createTransactionMXNB(amount, to);
+      const response = await fetchUser(user);
+      console.log(response);
+      const wallet = new Wallet(response.privateKey, provider);
+      const tx = await wallet.sendTransaction(transaction);
+      console.log(tx.hash);
+      return JSON.stringify({
+        status: "success",
+        message: "Transaction created and available on Arbitrum Sepolia.",
+        transaction: tx.hash,
+      });
+    },
+    {
+      name: "transfer_mxnb",
+      description:
+        "This tool facilitates MXNB Coin (MXNB) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send MXNB, initiates a transaction, or mentions terms like 'transfer,' 'MXNB,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
+      schema: z.object({
+        amount: z.string(),
+        to: z.string(),
+      }),
+    }
+  );
+  ```
 
 All technical implementations for this module are included here.
 
