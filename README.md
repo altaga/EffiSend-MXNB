@@ -712,7 +712,7 @@ In the case of the MetaMask Card fund, it is activated when the user requests to
   );
   ```
 
-- Code to swap and bridge MXNB from Arbitrum Mainnet to USDC Linea.
+- Code to convert MXNB on Arbitrum Mainnet to USDC on Linea.
 
   ```javascript
   ...
