@@ -682,7 +682,7 @@ All technical implementations for this module are included here.
 
 ### Special Menthod (ONLY IN MAINNET):
 
-In the case of the MetaMask Card fund, it is activated when the user requests to send MXN to a MetaMask card using an address. However, unlike all other methods, this one works entirely on the Arbitrum Mainnet. It's worth noting that an active MetaMask card is required to use it, just like in the demo video.
+In the case of the MetaMask Card fund, it is activated when the user requests to send MXNB to a MetaMask card using an address. However, unlike all other methods, this one works entirely on the Arbitrum Mainnet. It's worth noting that an active MetaMask card is required to use it, just like in the demo video.
 
 <img src="./Images/final.drawio.png">
 
