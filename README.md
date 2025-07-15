@@ -565,6 +565,117 @@ DeSmond utilizes several specialized tools to handle different user requests. Th
   );
   ```
 
+- **`get_balance`**: Retrieves the user's **Ethereum (ETH) native token balance** on the Arbitrum Sepolia testnet.
+
+```javascript
+// Get Native Balance - Modified for API response
+const getBalance = tool(
+  async (_, { configurable: { address } }) => {
+    console.log("Get Balance Tool invoked.");
+    const balance = await provider.getBalance(address);
+    const balanceInEth = parseFloat(formatEther(balance)).toFixed(6);
+    console.log("Balance in ETH:", balanceInEth);
+    return JSON.stringify({
+      status: "success",
+      balance: `${balanceInEth} ETH`,
+    });
+  },
+  {
+    name: "get_balance",
+    description:
+      "This tool retrieves the user's current **Ethereum (ETH) native token balance** on the Arbitrum Sepolia testnet. Use this when the user specifically asks for their **ETH balance**, 'native token' balance, or general wallet funds on Arbitrum Sepolia.",
+    schema: z.object({}),
+  }
+);
+```
+
+- **`get_balance_mxnb`**: Retrieves the user's **MXNB ERC-20 token balance** on the Arbitrum Sepolia testnet.
+
+```javascript
+// Get MXNB Balance - Modified for API response
+const getBalanceMXNB = tool(
+  async (_, { configurable: { address } }) => {
+    console.log("Get Balance MXNB Tool invoked.");
+    const balance = await contract.balanceOf(address);
+    const balanceInMXNB = parseFloat(
+      formatUnits(balance, mxnb.decimals)
+    ).toFixed(6);
+    console.log("Balance in MXNB:", balanceInMXNB);
+    return JSON.stringify({
+      status: "success",
+      balance: `${balanceInMXNB} MXNB`,
+    });
+  },
+  {
+    name: "get_balance_mxnb",
+    description:
+      "MXNB ERC-20 token balance tool. This tool retrieves the user's current MXNB ERC-20 token balance on the Arbitrum Sepolia testnet. Activate this when the user explicitly asks for their **MXNB balance**, 'MXNB tokens', or other phrases clearly indicating a request for the MXNB token.",
+    schema: z.object({}),
+  }
+);
+```
+
+- **`transfer_native`**: Facilitates native Ethereum (ETH) transfers on the Arbitrum Sepolia testnet.
+
+```javascript
+// Transfer Native - Modified to return transaction data to API
+const transferNative = tool(
+  async ({ amount, to }, { configurable: { user } }) => {
+    const transaction = await createTransaction(amount, to);
+    console.log(user);
+    const response = await fetchUser(user);
+    console.log(response);
+    const wallet = new Wallet(response.privateKey, provider);
+    const tx = await wallet.sendTransaction(transaction);
+    console.log(tx.hash);
+    return JSON.stringify({
+      status: "success",
+      message: "Transaction created and available on Arbitrum Sepolia.",
+      transaction: tx.hash,
+    });
+  },
+  {
+    name: "transfer_native",
+    description:
+      "This tool facilitates native Ethereum (ETH) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send ETH, initiates a transaction, or mentions terms like 'transfer,' 'ETH,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
+    schema: z.object({
+      amount: z.string(),
+      to: z.string(),
+    }),
+  }
+);
+```
+
+- **`transfer_mxnb`**: Facilitates MXNB Coin (MXNB) transfers on the Arbitrum Sepolia testnet.
+
+```javascript
+// Transfer MXNB Arbitrum to USDC Linea - Only on Mainnet
+const transferMXNB = tool(
+  async ({ amount, to }, { configurable: { user } }) => {
+    const transaction = createTransactionMXNB(amount, to);
+    const response = await fetchUser(user);
+    console.log(response);
+    const wallet = new Wallet(response.privateKey, provider);
+    const tx = await wallet.sendTransaction(transaction);
+    console.log(tx.hash);
+    return JSON.stringify({
+      status: "success",
+      message: "Transaction created and available on Arbitrum Sepolia.",
+      transaction: tx.hash,
+    });
+  },
+  {
+    name: "transfer_mxnb",
+    description:
+      "This tool facilitates MXNB Coin (MXNB) transfers on the Arbitrum Sepolia. It generates the transaction data for the user to sign. It activates whenever the user explicitly requests to send MXNB, initiates a transaction, or mentions terms like 'transfer,' 'MXNB,' or 'Arbitrum Sepolia' in relation to their wallet activity.",
+    schema: z.object({
+      amount: z.string(),
+      to: z.string(),
+    }),
+  }
+);
+```
+
 All technical implementations for this module are included here.
 
 - [AI Agent](./Agent%20Server/app/main.py)
