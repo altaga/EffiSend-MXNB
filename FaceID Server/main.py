@@ -21,14 +21,6 @@ print("Face API Status:",result["verified"])
 
 # Fast API Classes
 
-class ItemComparison(BaseModel):
-    image1 : str
-    image2 : str
-
-class ItemUser(BaseModel):
-    image : str
-    address : str
-    
 class ItemUserFace(BaseModel):
     image : str
     nonce : str

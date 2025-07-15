@@ -678,7 +678,7 @@ const transferMXNB = tool(
 
 All technical implementations for this module are included here.
 
-- [AI Agent](./Agent%20Server/app/main.py)
+- [AI Agent](./Agent%20Server/app/index.js)
 
 ### Special Menthod (ONLY IN MAINNET):
 
