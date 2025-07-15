@@ -523,30 +523,6 @@ DeSmond utilizes several specialized tools to handle different user requests. Th
   );
   ```
 
-- **`fund_metamask_card`**: Facilitates MXNB Coin (MXNB) transfers on Arbitrum Mainnet to USDC on Linea. It activates when the user opts to send MXNB to a MetaMask Card.
-
-  ```javascript
-  const fundMemamaskCard = tool(
-    async ({ amount, to }, { configurable: { user } }) => {
-      const response = await exexuteTranfer({ amount, to, user });
-      return JSON.stringify({
-        status: "success",
-        message: "Your balance is now available on your Metamask Card.",
-        transaction: response,
-      });
-    },
-    {
-      name: "fund_metamask_card",
-      description:
-        "This tool facilitates MXNB Coin (MXNB) transfers on the Arbitrum Mainnet to USDC on Linea. It generates transaction data for the user to sign and activates when the user explicitly opts to send MXNB to a MetaMask Card or mentions relevant terms such as 'transfer,' 'MXNB,' 'Arbitrum Mainnet,' or 'MetaMask Card' in the context of wallet activity.",
-      schema: z.object({
-        amount: z.string(),
-        to: z.string(),
-      }),
-    }
-  );
-  ```
-
 - **`list_of_tools`**: Provides a list of available tools for the user to interact with.
 
   ```javascript
@@ -592,3 +568,121 @@ DeSmond utilizes several specialized tools to handle different user requests. Th
 All technical implementations for this module are included here.
 
 - [AI Agent](./Agent%20Server/app/main.py)
+
+### Special Menthod (ONLY IN MAINNET):
+
+En el caso de el fund de metamask card, se activa cuando el usuario solicita enviar MXNB a una tarjeta MetaMask mediante address, sin embargo a diferencia de todo el resto de metodos, este funciona completamente en Mainnet de Arbitrum. Cabe aclarar que se requiere una metamask card activa para poder utilizarlo de igual forma que en el video demo.
+
+<img src="./Images/final.drawio.png">
+
+- **`fund_metamask_card`**: Facilitates MXNB Coin (MXNB) transfers on Arbitrum Mainnet to USDC on Linea. It activates when the user opts to send MXNB to a MetaMask Card.
+
+  ```javascript
+  const fundMemamaskCard = tool(
+    async ({ amount, to }, { configurable: { user } }) => {
+      const response = await exexuteTranfer({ amount, to, user });
+      return JSON.stringify({
+        status: "success",
+        message: "Your balance is now available on your Metamask Card.",
+        transaction: response,
+      });
+    },
+    {
+      name: "fund_metamask_card",
+      description:
+        "This tool facilitates MXNB Coin (MXNB) transfers on the Arbitrum Mainnet to USDC on Linea. It generates transaction data for the user to sign and activates when the user explicitly opts to send MXNB to a MetaMask Card or mentions relevant terms such as 'transfer,' 'MXNB,' 'Arbitrum Mainnet,' or 'MetaMask Card' in the context of wallet activity.",
+      schema: z.object({
+        amount: z.string(),
+        to: z.string(),
+      }),
+    }
+  );
+  ```
+
+- Code to swap and bridge MXNB from Arbitrum Mainnet to USDC Linea.
+
+```javascript
+...
+///////// Swap MXNB to USDT on Arbitrum /////////
+const swapperContract = new Contract(
+  swapperAddress,
+  SwapRouter.INTERFACE.format(),
+  wallet
+);
+const InputTokenContract = new Contract(
+  InputToken.address,
+  ERC20abi,
+  wallet
+);
+// Get the pool information
+const [token0, token1, fee] = await Promise.all([
+  poolContract.token0(), // MXNB
+  poolContract.token1(), // USDT
+  poolContract.fee(),    // Transaction Fee
+]);
+// Quote the amount out
+const quotedAmountOut =
+  await quoterContract.quoteExactInputSingle.staticCall(
+    token0,
+    token1,
+    fee,
+    parseUnits(amount, InputToken.decimals).toString(),
+    0
+  );
+// Approve the swap transaction
+const approveTransaction = await InputTokenContract.approve(
+  swapperAddress,
+  parseUnits(amount, InputToken.decimals).toString()
+);
+await approveTransaction.wait();
+// Execute the swap
+const swapParameters = {
+  tokenIn: InputToken.address,
+  tokenOut: OutputToken.address,
+  fee,
+  recipient: wallet.address,
+  deadline: Math.floor(new Date().getTime() / 1000 + 60 * 10),
+  amountIn: parseUnits(amount, InputToken.decimals).toString(),
+  amountOutMinimum: quotedAmountOut,
+  sqrtPriceLimitX96: 0,
+};
+const swapTransaction = await swapperContract.exactInputSingle(
+  swapParameters
+);
+await swapTransaction.wait();
+console.log(swapTransaction.hash);
+
+///////// Bridge USDT on Arbitrum to USDC on LINEA /////////
+const quoteRequest = {
+  fromChain: ChainId.ARBITRUM_ONE, // Arbitrum
+  toChain: LineaToken.chainId, // LINEA
+  fromToken: OutputToken.address, // USDT on Arbitrum
+  toToken: LineaToken.address, // USDC on Linea
+  fromAmount: quotedAmountOut, // Amount of USDC
+  fromAddress: wallet.address, // User address
+  toAddress: address, // Metamask card address,
+};
+// Get the quote
+const quote = await getQuote(quoteRequest);
+// Convert the quote to a route
+const route = convertQuoteToRoute(quote);
+// Get the transaction
+const transaction = route.steps[0].transactionRequest;
+const contract = new Contract(quoteRequest.fromToken, ERC20abi, provider);
+// Approve the transaction
+const transactionApproval = await contract.interface.encodeFunctionData(
+  "approve",
+  [transaction.to, quoteRequest.fromAmount]
+);
+// Execute the approval transaction
+const resultApproval = await wallet.sendTransaction({
+  from: wallet.address,
+  to: quoteRequest.fromToken,
+  data: transactionApproval,
+});
+const receiptApproval = await resultApproval.wait();
+// Execute the bridge transaction
+const resultCCTP = await wallet.sendTransaction(transaction);
+const receiptCCTP = await resultCCTP.wait();
+...
+```
