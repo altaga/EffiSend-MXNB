@@ -7,6 +7,8 @@ EffiSend is an identity and payments platform powered by MXNB. It combines Face-
 
 ## ⚡Fast Links:
 
+REAL LIFE DEMO: [LINK](https://youtu.be/DHN2aT6-Ndk)
+
 APP CODE: [CODE](./effisend-mxnb/)
 
 WEB DAPP: [LINK](https://effisend-mxnb.expo.app/)
