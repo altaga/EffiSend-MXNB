@@ -19,7 +19,7 @@ VIDEODEMO: [LINK](pending...)
 
 EffiSend is built entirely from scratch to leverage the most advanced web3 infrastructure.
 
-<img src="./Images/diagram.drawio.png">
+<img src="">
 
 - [**Juno**](https://juno.finance/)
   Provides secure, reliable, and user-friendly on/off ramps for users to buy MXNB tokens directly from the app. Juno is also used to send users' MXNB tokens to their respective wallets after rewards distribution.
