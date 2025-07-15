@@ -13,13 +13,13 @@ WEB DAPP: [LINK](https://effisend-mxnb.expo.app/)
 
 VIDEODEMO: [LINK](pending...)
 
-<br>
+<hr>
 
 ## 🚀 System Diagram
 
 EffiSend is built entirely from scratch to leverage the most advanced web3 infrastructure.
 
-<img src="">
+<img src="./Images/diagram.drawio.png">
 
 - [**Juno**](https://juno.finance/)
   Provides secure, reliable, and user-friendly on/off ramps for users to buy MXNB tokens directly from the app. Juno is also used to send users' MXNB tokens to their respective wallets after rewards distribution.
@@ -39,6 +39,8 @@ EffiSend is built entirely from scratch to leverage the most advanced web3 infra
 ## 📈 Juno Integration:
 
 EffiSend utilizes Juno for seamless integration with traditional banking systems, enabling functionalities such as CLABE creation, bank account registration, and SPEI transfers.
+
+<img src="./Images/juno.png">
 
 ### Custom NodeJS Module:
 
@@ -93,12 +95,17 @@ async function getClabes() {
 All technical implementations for this module are included here.
 
 - [Juno Functions](./Cloud%20Functions/junoFunctions.js)
+- [Juno Docs Reference](https://docs.bitso.com/juno/docs/create-signed-requests)
 
 <hr>
 
 ### Create or Recover Account:
 
 As a platform based on identity, users can create or recover their accounts simply by taking a selfie. This process, although complex on the inside, provides a better experience for the user. The integration of Juno in this process is to configure all user credentials in order to perform one of the traditional and crypto services.
+
+<img src="./Images/setup1.jpg" width="32%"> <img src="./Images/setup2.jpg" width="32%"> <img src="./Images/setup3.jpg" width="32%"> 
+
+- Create User Main Code.
 
 ```javascript
 // Create User Wallet
@@ -151,12 +158,17 @@ All technical implementations for this module are included here.
 
 - [Juno Functions](./Cloud%20Functions/junoFunctions.js)
 - [Create or Recover](./Cloud%20Functions/create-or-fetch-user.js)
+- [Juno Docs Reference](https://docs.bitso.com/juno/docs/create-clabes)
 
 <hr>
 
 ### SPEI and MXNB Transfers:
 
 We can transfer of funds from the EffiSend system to external bank accounts via SPEI and also handles the transfer of MXNB tokens to a designated Juno address on the blockchain.
+
+<img src="./Images/pay1.jpg" width="32%"> <img src="./Images/pay2.jpg" width="32%"> <img src="./Images/pay3.jpg" width="32%"> 
+
+- Create User Main Code.
 
 ```javascript
 // Fetch if the user Exist on the platform
@@ -190,6 +202,7 @@ All technical implementations for this module are included here.
 
 - [Juno Functions](./Cloud%20Functions/junoFunctions.js)
 - [Spei Transfer](./Cloud%20Functions/send-mxnb-to-spei.js)
+- [Juno Docs Reference](https://docs.bitso.com/juno/docs/create-mock-deposits)
 
 ## 💲MXNB:
 A key component of our application is the utilization of MXNB as the primary token, largely due to its seamless integration with the Juno Platform, which enables us to effortlessly execute on-ramp and off-ramp transactions. Furthermore, we employ MXNB as the primary token for payments and as rewards for users.
