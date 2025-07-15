@@ -210,6 +210,10 @@ A key component of our application is the utilization of MXNB as the primary tok
 ### Payments:
 For the use case of payments, MXNB offers a convenient way to make blockchain-based payments in Mexican pesos, as it is an ERC20 token and performing operations with this type of tokens is relatively straightforward.
 
+<img src="./Images/pay4.jpg" width="32%"> <img src="./Images/pay5.jpg" width="32%"> <img src="./Images/pay6.jpg" width="32%"> 
+
+- Create User Main Code.
+
 ```javascript
 // Fetch user based on the identifier.
 let query = await Accounts.where("user", "==", req.body.user).get();
@@ -256,6 +260,8 @@ All technical implementations for this module are included here.
 ### Rewards:
 
 As a platform built on identity, we follow the rewards model of Worldcoin, which rewards users for utilizing the platform and signing up. So, every time a user completes a certain number of transactions or actions, they receive a reward in MXNB tokens.
+
+<img src="./Images/rew1.jpg" width="32%"> <img src="./Images/rew2.jpg" width="32%"> <img src="./Images/rew3.jpg" width="32%"> 
 
 - The first reward for creating an account, this code has already been explained previously [HERE](#create-or-recover-account), however, we'll review the process and how it's coordinated with our smart contract.
 
@@ -354,7 +360,9 @@ All technical implementations for this module are included here.
 
 ## FaceID Payment
 
-EffiSend enables seamless payments via facial recognition by linking a user’s unique biometric profile to their wallet and Juno Account
+EffiSend enables seamless payments via facial recognition by linking a user’s unique biometric profile to their wallet and Juno Account.
+
+<img src="./Images/pay1.jpg" width="32%"> <img src="./Images/pay2.jpg" width="32%"> <img src="./Images/pay3.jpg" width="32%"> 
 
 - The primary function is to create a new user or locate an existing one. This process is dedicated solely to validation, ensuring that the system remains secure and isolated from other services.
 
@@ -434,6 +442,8 @@ All technical implementations for this module are included here.
 ## 🤖 AI Agent (DeSmond):
 
 The EffiSend platform incorporates an AI agent named DeSmond, built using the Langchain framework. DeSmond is capable of understanding and responding to natural language inputs, allowing users to interact with the platform in a more conversational and intuitive way. DeSmond can perform various tasks, such as web searches, SPEI transfers, and Metamask top-ups from MXNB.
+
+<img src="./Images/agent1.jpg" width="32%"> <img src="./Images/agent2.jpg" width="32%"> <img src="./Images/agent3.jpg" width="32%">
 
 ### Agent Setup and Tools
 
