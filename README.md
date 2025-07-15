@@ -3,7 +3,7 @@
   <img src="./Images/logo.png" width="20%">
 </p>
 
-EffiSend is a decentralized identity platform powered by MXNB. It combines FaceID biometrics and an AI agent for secure, seamless identity management. Integrated with Juno, it enables SPEI on/off ramps and rewards users for verified interactions and ecosystem participation—bridging trust, finance, and incentives in one experience
+EffiSend is an identity and payments platform powered by MXNB. It combines Face-ID biometrics and an AI agent for secure, seamless identity and finance management. Integrated with Juno, it enables SPEI on/off ramps and rewards users for verified interactions and ecosystem participation—bridging trust, finance, and incentives.
 
 ## ⚡Fast Links:
 
