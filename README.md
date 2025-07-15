@@ -712,88 +712,88 @@ In the case of the MetaMask Card fund, it is activated when the user requests to
 
 - Code to swap and bridge MXNB from Arbitrum Mainnet to USDC Linea.
 
-```javascript
-...
-///////// Swap MXNB to USDT on Arbitrum /////////
-const swapperContract = new Contract(
-  swapperAddress,
-  SwapRouter.INTERFACE.format(),
-  wallet
-);
-const InputTokenContract = new Contract(
-  InputToken.address,
-  ERC20abi,
-  wallet
-);
-// Get the pool information
-const [token0, token1, fee] = await Promise.all([
-  poolContract.token0(), // MXNB
-  poolContract.token1(), // USDT
-  poolContract.fee(),    // Transaction Fee
-]);
-// Quote the amount out
-const quotedAmountOut =
-  await quoterContract.quoteExactInputSingle.staticCall(
-    token0,
-    token1,
-    fee,
-    parseUnits(amount, InputToken.decimals).toString(),
-    0
+  ```javascript
+  ...
+  ///////// Swap MXNB to USDT on Arbitrum /////////
+  const swapperContract = new Contract(
+    swapperAddress,
+    SwapRouter.INTERFACE.format(),
+    wallet
   );
-// Approve the swap transaction
-const approveTransaction = await InputTokenContract.approve(
-  swapperAddress,
-  parseUnits(amount, InputToken.decimals).toString()
-);
-await approveTransaction.wait();
-// Execute the swap
-const swapParameters = {
-  tokenIn: InputToken.address,
-  tokenOut: OutputToken.address,
-  fee,
-  recipient: wallet.address,
-  deadline: Math.floor(new Date().getTime() / 1000 + 60 * 10),
-  amountIn: parseUnits(amount, InputToken.decimals).toString(),
-  amountOutMinimum: quotedAmountOut,
-  sqrtPriceLimitX96: 0,
-};
-const swapTransaction = await swapperContract.exactInputSingle(
-  swapParameters
-);
-await swapTransaction.wait();
-console.log(swapTransaction.hash);
+  const InputTokenContract = new Contract(
+    InputToken.address,
+    ERC20abi,
+    wallet
+  );
+  // Get the pool information
+  const [token0, token1, fee] = await Promise.all([
+    poolContract.token0(), // MXNB
+    poolContract.token1(), // USDT
+    poolContract.fee(),    // Transaction Fee
+  ]);
+  // Quote the amount out
+  const quotedAmountOut =
+    await quoterContract.quoteExactInputSingle.staticCall(
+      token0,
+      token1,
+      fee,
+      parseUnits(amount, InputToken.decimals).toString(),
+      0
+    );
+  // Approve the swap transaction
+  const approveTransaction = await InputTokenContract.approve(
+    swapperAddress,
+    parseUnits(amount, InputToken.decimals).toString()
+  );
+  await approveTransaction.wait();
+  // Execute the swap
+  const swapParameters = {
+    tokenIn: InputToken.address,
+    tokenOut: OutputToken.address,
+    fee,
+    recipient: wallet.address,
+    deadline: Math.floor(new Date().getTime() / 1000 + 60 * 10),
+    amountIn: parseUnits(amount, InputToken.decimals).toString(),
+    amountOutMinimum: quotedAmountOut,
+    sqrtPriceLimitX96: 0,
+  };
+  const swapTransaction = await swapperContract.exactInputSingle(
+    swapParameters
+  );
+  await swapTransaction.wait();
+  console.log(swapTransaction.hash);
 
-///////// Bridge USDT on Arbitrum to USDC on LINEA /////////
-const quoteRequest = {
-  fromChain: ChainId.ARBITRUM_ONE, // Arbitrum
-  toChain: LineaToken.chainId, // LINEA
-  fromToken: OutputToken.address, // USDT on Arbitrum
-  toToken: LineaToken.address, // USDC on Linea
-  fromAmount: quotedAmountOut, // Amount of USDC
-  fromAddress: wallet.address, // User address
-  toAddress: address, // Metamask card address,
-};
-// Get the quote
-const quote = await getQuote(quoteRequest);
-// Convert the quote to a route
-const route = convertQuoteToRoute(quote);
-// Get the transaction
-const transaction = route.steps[0].transactionRequest;
-const contract = new Contract(quoteRequest.fromToken, ERC20abi, provider);
-// Approve the transaction
-const transactionApproval = await contract.interface.encodeFunctionData(
-  "approve",
-  [transaction.to, quoteRequest.fromAmount]
-);
-// Execute the approval transaction
-const resultApproval = await wallet.sendTransaction({
-  from: wallet.address,
-  to: quoteRequest.fromToken,
-  data: transactionApproval,
-});
-const receiptApproval = await resultApproval.wait();
-// Execute the bridge transaction
-const resultCCTP = await wallet.sendTransaction(transaction);
-const receiptCCTP = await resultCCTP.wait();
-...
-```
+  ///////// Bridge USDT on Arbitrum to USDC on LINEA /////////
+  const quoteRequest = {
+    fromChain: ChainId.ARBITRUM_ONE, // Arbitrum
+    toChain: LineaToken.chainId, // LINEA
+    fromToken: OutputToken.address, // USDT on Arbitrum
+    toToken: LineaToken.address, // USDC on Linea
+    fromAmount: quotedAmountOut, // Amount of USDC
+    fromAddress: wallet.address, // User address
+    toAddress: address, // Metamask card address,
+  };
+  // Get the quote
+  const quote = await getQuote(quoteRequest);
+  // Convert the quote to a route
+  const route = convertQuoteToRoute(quote);
+  // Get the transaction
+  const transaction = route.steps[0].transactionRequest;
+  const contract = new Contract(quoteRequest.fromToken, ERC20abi, provider);
+  // Approve the transaction
+  const transactionApproval = await contract.interface.encodeFunctionData(
+    "approve",
+    [transaction.to, quoteRequest.fromAmount]
+  );
+  // Execute the approval transaction
+  const resultApproval = await wallet.sendTransaction({
+    from: wallet.address,
+    to: quoteRequest.fromToken,
+    data: transactionApproval,
+  });
+  const receiptApproval = await resultApproval.wait();
+  // Execute the bridge transaction
+  const resultCCTP = await wallet.sendTransaction(transaction);
+  const receiptCCTP = await resultCCTP.wait();
+  ...
+  ```
